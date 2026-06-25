@@ -1,0 +1,108 @@
+Date: 23-06-2026
+Create Database company;
+show databases;
+use company;
+
+
+select * from employees;
+select * from department;
+
+------1:Top 5 highest salary employees
+
+SELECT *
+FROM employees
+ORDER BY salary DESC
+LIMIT 5;
+
+-----2:. Department wise employee count 
+
+SELECT depid,
+       COUNT(*) AS employee_count
+FROM employees
+GROUP BY depid;
+
+-----3:Find Second highest salary 
+
+SELECT MAX(salary) AS second_highest_salary
+FROM employees
+WHERE salary < (
+    SELECT MAX(salary)
+    FROM employees
+);
+
+-----4:Employees whose salary > department average salary
+
+SELECT e.*
+FROM employees e
+JOIN (
+    SELECT depid,
+           AVG(salary) AS avg_salary
+    FROM employees
+    GROUP BY depid
+) d
+ON e.depid = d.depid
+WHERE e.salary > d.avg_salary;
+
+-----5:. Inner Join 
+
+SELECT e.empid,
+       e.empname,
+       d.depname
+FROM employees e
+INNER JOIN departments d
+ON e.depid = d.depid;
+
+-----6:Left Join
+
+SELECT e.empid,
+       e.empname,
+       d.depname
+FROM employees e
+INNER JOIN departments d
+ON e.depid = d.depid;
+
+
+-----7:Group By with Having 
+
+SELECT depid,
+       COUNT(*) AS total_employees
+FROM employees
+GROUP BY depid
+HAVING COUNT(*) > 2;
+
+-----8:Employees hired in last 6 months
+
+SELECT *
+FROM employees
+WHERE hire_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH);
+
+-----9:Find the Duplicates records 
+
+SELECT empname,
+       salary,
+       COUNT(*) AS cnt
+FROM employees
+GROUP BY empname, salary
+HAVING COUNT(*) > 1;
+
+-----10:Find the Duplicates records 
+
+DELETE FROM employees
+WHERE empid IN (
+    SELECT empid
+    FROM (
+        SELECT empid,
+               ROW_NUMBER() OVER (
+                   PARTITION BY empname, salary
+                   ORDER BY empid
+               ) rn
+        FROM employees
+    ) x
+    WHERE rn > 1
+);
+
+
+
+
+     
+     

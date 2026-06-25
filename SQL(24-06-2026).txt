@@ -1,0 +1,114 @@
+Date: 24-06-2026
+
+-----1.Adding data in existing table
+
+INSERT INTO employees (empid, empname, depid, salary, hire_date)
+VALUES
+(111, 'Sakshi', 1, 52000, '2023-01-15'),
+(112, 'Priya', 2, 56000, '2022-03-20'),
+(113, 'Amit', 1, 49000, '2023-06-10'),
+(114, 'Neha', 3, 62000, '2021-11-05'),
+(115, 'Karan', 2, 51000, '2022-08-18'),
+(116, 'Sneha', 1, 70000, '2020-09-12'),
+(117, 'Vikram', 3, 58000, '2021-04-25'),
+(118, 'Pooja', 2, 65000, '2020-12-01'),
+(119, 'Rohit', 1, 47000, '2023-02-28'),
+(120, 'Meera', 2, 53000, '2022-07-14');
+
+
+
+-----Handle and apply window functions on that table
+
+SELECT empid,
+       empname,
+       salary,
+       ROW_NUMBER() OVER(ORDER BY salary DESC) AS row_num
+FROM employees;
+
+
+SELECT empid,
+       empname,
+       salary,
+       RANK() OVER(ORDER BY salary DESC) AS emp_rank
+FROM employees;
+
+
+
+SELECT empid,
+       empname,
+       salary,
+       DENSE_RANK() OVER(ORDER BY salary DESC) AS dense_sal
+FROM employees;
+
+
+
+
+SELECT empid,
+       empname,
+       salary,
+       LAG(salary) OVER(ORDER BY salary) AS previous_salary
+FROM employees;
+
+
+SELECT empid,
+       empname,
+       salary,
+       LEAD(salary) OVER(ORDER BY salary) AS previous_salary
+FROM employees;
+
+
+------Case When:
+
+select *,
+   case 
+     when hire_date >= DATE_SUB(CURDATE(), INTERVAL 2 MONTH) then "New Joinee"
+     when hire_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) then "Under Training"
+     Else "Permenat Employees"
+     END as Employee_status
+     from Employees;
+     
+     
+------Create View:
+
+ create view emp_info As
+ 
+ select empid,empname,dept_name,salary from Employees
+ join
+ Department 
+ on Employees.depid = Department.dept_id;
+ 
+-----Triggers
+ 
+INSERT INTO employees (empid, empname, depid, salary, hire_date)
+VALUES
+(121, 'Akansha', 1, -47000, '2023-05-15');
+select * from Employees;
+
+# SET SQL_SAFE_UPDATES = 0;   ----- to delete the row when safe mode will off
+# SHOW VARIABLES LIKE 'sql_safe_updates';
+# delete from Employees where empid = 121;
+
+
+DELIMITER $$
+
+CREATE TRIGGER trigger_after_insert
+BEFORE INSERT ON Employees
+FOR EACH ROW
+BEGIN
+    IF NEW.salary < 0 THEN
+        SET NEW.salary = 0;
+    END IF;
+END$$
+
+DELIMITER ;
+       
+	show triggers;
+    
+INSERT INTO Employees
+(empid, empname, depid, salary, hire_date)
+VALUES
+(122, 'Ramesh', 1, -5000, '2026-06-25');   
+	
+select * from Employees;
+
+
